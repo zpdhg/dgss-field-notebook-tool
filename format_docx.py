@@ -460,18 +460,28 @@ def create_section_header_style(doc):
         # 自定义标题2的字体和格式
         try:
             heading2.font.bold = True
-            heading2.font.name = '宋体'  # 改为宋体
+            heading2.font.name = 'Times New Roman'  # 英文字体设置为Times New Roman
             heading2.font.size = Pt(10.5)
             heading2.font.color.rgb = RGBColor(0, 0, 0)
             
-            # 强制设置所有字体类型为宋体
+            # 强制设置字体类型：英文Times New Roman，中文宋体
             rPr = heading2.element.get_or_add_rPr()
             rFonts = rPr.get_or_add_rFonts()
-            rFonts.set(qn('w:ascii'), '宋体')  # ASCII字符
-            rFonts.set(qn('w:hAnsi'), '宋体')  # 高ANSI字符
-            rFonts.set(qn('w:eastAsia'), '宋体')  # 东亚字符
-            rFonts.set(qn('w:cs'), '宋体')  # 复杂脚本字符
+            rFonts.set(qn('w:ascii'), 'Times New Roman')  # ASCII字符使用Times New Roman
+            rFonts.set(qn('w:hAnsi'), 'Times New Roman')  # 高ANSI字符使用Times New Roman
+            rFonts.set(qn('w:eastAsia'), '宋体')  # 东亚字符使用宋体
+            rFonts.set(qn('w:cs'), '宋体')  # 复杂脚本字符使用宋体
             rFonts.set(qn('w:hint'), 'eastAsia')  # 字体提示
+            
+            # 强制设置加粗属性（确保在XML级别也设置）
+            if rPr.find(qn('w:b')) is None:
+                b = OxmlElement('w:b')
+                rPr.append(b)
+            
+            # 设置加粗复杂脚本
+            if rPr.find(qn('w:bCs')) is None:
+                bCs = OxmlElement('w:bCs')
+                rPr.append(bCs)
             
             # 确保字体设置被应用
             if not hasattr(heading2.font, '_element'):
@@ -620,7 +630,8 @@ def process_file(filename):
     headers = ["点间路线描述", "分段路线上界线描述", "路线编号", "路线描述", "目标任务", "图幅编号", "地质点号", "路线小结", "路线自检"]
     
     # Keywords that need SectionHeader style (with Chinese colon)
-    section_header_keywords = ["点上界线描述：", "点间路线描述：", "路线小结：", "路线自检："]
+    # Keywords that need SectionHeader style (with Chinese colon)
+    section_header_keywords = ["点上界线描述：", "点间路线描述：", "地质点号：", "路线小结：", "路线自检："]
     
     chunks = []
     current_chunk = []
@@ -786,27 +797,27 @@ def process_file(filename):
                     
                     # 直接在每个run中设置字体，但保留大纲级别
                     for run in p.runs:
-                        run.font.name = '宋体'
+                        run.font.name = 'Times New Roman'  # 英文字体
                         run.font.bold = True
                         run.font.size = Pt(10.5)
-                        # 强制设置中文字体
+                        # 强制设置字体类型：英文Times New Roman，中文宋体
                         if run._element.rPr is None:
                             run._element._add_rPr()
-                        run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
-                        run._element.rPr.rFonts.set(qn('w:ascii'), '宋体')
-                        run._element.rPr.rFonts.set(qn('w:hAnsi'), '宋体')
+                        run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')  # 中文宋体
+                        run._element.rPr.rFonts.set(qn('w:ascii'), 'Times New Roman')  # 英文Times New Roman
+                        run._element.rPr.rFonts.set(qn('w:hAnsi'), 'Times New Roman')  # 高ANSI字符Times New Roman
                     
                     # 如果段落没有runs，添加一个run并设置字体
                     if len(p.runs) == 0:
                         run = p.add_run(text)
-                        run.font.name = '宋体'
+                        run.font.name = 'Times New Roman'  # 英文字体
                         run.font.bold = True
                         run.font.size = Pt(10.5)
                         if run._element.rPr is None:
                             run._element._add_rPr()
-                        run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
-                        run._element.rPr.rFonts.set(qn('w:ascii'), '宋体')
-                        run._element.rPr.rFonts.set(qn('w:hAnsi'), '宋体')
+                        run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')  # 中文宋体
+                        run._element.rPr.rFonts.set(qn('w:ascii'), 'Times New Roman')  # 英文Times New Roman
+                        run._element.rPr.rFonts.set(qn('w:hAnsi'), 'Times New Roman')  # 高ANSI字符Times New Roman
                     
                     # 确保大纲级别设置正确（用于导航功能）
                     pPr = p._element.get_or_add_pPr()
@@ -983,7 +994,7 @@ def run_batch():
             headers = ["点间路线描述", "分段路线上界线描述", "路线编号", "路线描述", "目标任务", "图幅编号", "地质点号", "路线小结", "路线自检"]
             
             # Keywords that need SectionHeader style (with Chinese colon)
-            section_header_keywords = ["点上界线描述：", "点间路线描述：", "路线小结：", "路线自检："]
+            section_header_keywords = ["点上界线描述：", "点间路线描述：", "地质点号：", "路线小结：", "路线自检："]
             
             chunks = []
             current_chunk = []
@@ -1144,25 +1155,25 @@ def run_batch():
                             
                             # 直接在每个run中设置字体
                             for run in p.runs:
-                                run.font.name = '宋体'
+                                run.font.name = 'Times New Roman'  # 英文字体
                                 run.font.bold = True
                                 run.font.size = Pt(10.5)
                                 if run._element.rPr is None:
                                     run._element._add_rPr()
-                                run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
-                                run._element.rPr.rFonts.set(qn('w:ascii'), '宋体')
-                                run._element.rPr.rFonts.set(qn('w:hAnsi'), '宋体')
+                                run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')  # 中文宋体
+                                run._element.rPr.rFonts.set(qn('w:ascii'), 'Times New Roman')  # 英文Times New Roman
+                                run._element.rPr.rFonts.set(qn('w:hAnsi'), 'Times New Roman')  # 高ANSI字符Times New Roman
                             
                             if len(p.runs) == 0:
                                 run = p.add_run(text)
-                                run.font.name = '宋体'
+                                run.font.name = 'Times New Roman'  # 英文字体
                                 run.font.bold = True
                                 run.font.size = Pt(10.5)
                                 if run._element.rPr is None:
                                     run._element._add_rPr()
-                                run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
-                                run._element.rPr.rFonts.set(qn('w:ascii'), '宋体')
-                                run._element.rPr.rFonts.set(qn('w:hAnsi'), '宋体')
+                                run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')  # 中文宋体
+                                run._element.rPr.rFonts.set(qn('w:ascii'), 'Times New Roman')  # 英文Times New Roman
+                                run._element.rPr.rFonts.set(qn('w:hAnsi'), 'Times New Roman')  # 高ANSI字符Times New Roman
                             
                             # 确保大纲级别设置正确
                             pPr = p._element.get_or_add_pPr()

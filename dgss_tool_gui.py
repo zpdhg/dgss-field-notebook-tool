@@ -4,10 +4,11 @@ import io
 import threading
 import datetime
 import traceback
+
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QPushButton, QLabel, QFrame, 
                              QTextEdit, QRadioButton, QComboBox, QButtonGroup,
-                             QGraphicsDropShadowEffect, QSizePolicy, QScrollArea)
+                             QGraphicsDropShadowEffect, QSizePolicy, QScrollArea, QLineEdit)
 from PyQt6.QtCore import Qt, QSize, pyqtSignal, QObject
 from PyQt6.QtGui import QColor, QFont, QIcon, QCursor, QPixmap
 
@@ -23,7 +24,8 @@ def resource_path(relative_path):
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
-        base_path = os.path.abspath(".")
+        # 开发环境：使用脚本所在目录
+        base_path = os.path.dirname(os.path.abspath(__file__))
 
     return os.path.join(base_path, relative_path)
 
@@ -125,6 +127,11 @@ class ModernWindow(QMainWindow):
         self.resize(1280, 800)
         self.setObjectName("MainWindow")
         
+        # 设置窗口图标
+        icon_path = resource_path("app_icon.png")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        
         # 信号处理
         self.signals = WorkerSignals()
         self.signals.log.connect(self.append_log_safe)
@@ -173,15 +180,25 @@ class ModernWindow(QMainWindow):
 
     def get_merge_args(self):
         if self.radio_routes.isChecked():
-            # 解析 "12 条/册" -> 12
-            text = self.combo_routes.currentText()
-            val = int(text.split()[0])
-            return "routes_per_volume", val
+            # 从输入框获取路线数
+            try:
+                val = int(self.input_routes.text().strip())
+                if val <= 0:
+                    raise ValueError("路线数必须大于0")
+                return "routes_per_volume", val
+            except ValueError:
+                self.add_log("错误：请输入有效的正整数作为每册路线数", "#e74c3c")
+                return None, None
         elif self.radio_volumes.isChecked():
-            # 解析 "3 册" -> 3
-            text = self.combo_volumes.currentText()
-            val = int(text.split()[0])
-            return "total_volumes", val
+            # 从输入框获取总册数
+            try:
+                val = int(self.input_volumes.text().strip())
+                if val <= 0:
+                    raise ValueError("总册数必须大于0")
+                return "total_volumes", val
+            except ValueError:
+                self.add_log("错误：请输入有效的正整数作为总册数", "#e74c3c")
+                return None, None
         return None, None
 
     def setup_ui(self):
@@ -319,29 +336,41 @@ class ModernWindow(QMainWindow):
         radio_layout.addStretch()
         layout_settings.addLayout(radio_layout)
         
-        # 参数下拉框
+        # 参数输入框
         param_layout = QHBoxLayout()
         lbl_param = QLabel("参数:")
         lbl_param.setStyleSheet("font-weight: bold; color: #64748b;")
         
-        self.combo_routes = QComboBox()
-        self.combo_routes.addItems(["12 条/册", "15 条/册", "20 条/册"])
-        self.combo_routes.setFixedHeight(32)
-        self.combo_routes.setEnabled(False)
+        # 路线数量输入框
+        route_input_layout = QVBoxLayout()
+        lbl_routes = QLabel("每册路线数:")
+        lbl_routes.setStyleSheet("color: #64748b; font-size: 12px;")
+        self.input_routes = QLineEdit()
+        self.input_routes.setPlaceholderText("如: 12")
+        self.input_routes.setFixedHeight(32)
+        self.input_routes.setEnabled(False)
+        route_input_layout.addWidget(lbl_routes)
+        route_input_layout.addWidget(self.input_routes)
         
-        self.combo_volumes = QComboBox()
-        self.combo_volumes.addItems(["3 册", "5 册", "10 册"])
-        self.combo_volumes.setFixedHeight(32)
-        self.combo_volumes.setEnabled(False)
+        # 总册数输入框
+        volume_input_layout = QVBoxLayout()
+        lbl_volumes = QLabel("总册数:")
+        lbl_volumes.setStyleSheet("color: #64748b; font-size: 12px;")
+        self.input_volumes = QLineEdit()
+        self.input_volumes.setPlaceholderText("如: 3")
+        self.input_volumes.setFixedHeight(32)
+        self.input_volumes.setEnabled(False)
+        volume_input_layout.addWidget(lbl_volumes)
+        volume_input_layout.addWidget(self.input_volumes)
 
         # 联动逻辑
-        self.radio_default.toggled.connect(self.update_combo_state)
-        self.radio_routes.toggled.connect(self.update_combo_state)
-        self.radio_volumes.toggled.connect(self.update_combo_state)
+        self.radio_default.toggled.connect(self.update_input_state)
+        self.radio_routes.toggled.connect(self.update_input_state)
+        self.radio_volumes.toggled.connect(self.update_input_state)
 
         param_layout.addWidget(lbl_param)
-        param_layout.addWidget(self.combo_routes)
-        param_layout.addWidget(self.combo_volumes)
+        param_layout.addLayout(route_input_layout)
+        param_layout.addLayout(volume_input_layout)
         layout_settings.addLayout(param_layout)
         layout_settings.addStretch()
         
@@ -349,9 +378,21 @@ class ModernWindow(QMainWindow):
 
         parent_layout.addWidget(left_widget)
 
-    def update_combo_state(self):
-        self.combo_routes.setEnabled(self.radio_routes.isChecked())
-        self.combo_volumes.setEnabled(self.radio_volumes.isChecked())
+    def update_input_state(self):
+        # 当选择默认模式时，禁用所有输入框
+        if self.radio_default.isChecked():
+            self.input_routes.setEnabled(False)
+            self.input_volumes.setEnabled(False)
+        # 当选择指定路线模式时，只启用路线输入框
+        elif self.radio_routes.isChecked():
+            self.input_routes.setEnabled(True)
+            self.input_volumes.setEnabled(False)
+            self.input_routes.setFocus()  # 自动聚焦到输入框
+        # 当选择指定总册模式时，只启用总册输入框
+        elif self.radio_volumes.isChecked():
+            self.input_routes.setEnabled(False)
+            self.input_volumes.setEnabled(True)
+            self.input_volumes.setFocus()  # 自动聚焦到输入框
 
     def create_right_panel(self, parent_layout):
         """创建右侧区域 (上下两部分)"""
@@ -531,130 +572,217 @@ class ModernWindow(QMainWindow):
 
     def apply_stylesheet(self):
         style = """
-        /* 全局字体与背景 */
+        /* 全局字体与背景 - 使用渐变背景 */
         QWidget {
-            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            font-family: 'Microsoft YaHei', 'Segoe UI', 'PingFang SC', sans-serif;
             font-size: 14px;
-            color: #334155;
+            color: #1e293b;
         }
         QMainWindow {
-            background-color: #f3f6f9; /* 整体背景 */
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                                       stop:0 #f8fafc, stop:1 #e0e7ff);
         }
         
-        /* 顶部 Header */
+        /* 顶部 Header - 天蓝渐变 */
         #HeaderFrame {
-            background-color: white;
-            border-bottom: 1px solid #e2e8f0;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #0ea5e9, stop:1 #38bdf8);
+            border-bottom: none;
+            padding: 10px;
         }
         #MainTitle {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            color: #334155;
+            color: white;
+            letter-spacing: 1px;
         }
 
-        /* 浅灰背景容器 */
+        /* 浅色背景容器 */
         #ContentContainer {
-            background-color: #f3f6f9;
+            background-color: transparent;
         }
 
-        /* 卡片通用样式 */
+        /* 卡片通用样式 - 毛玻璃效果 */
         #CardFrame {
-            background-color: white;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
         #CardTitle {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 15px;
             color: #334155;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
-        /* 绿色按钮 (Tailwind green-500: #22c55e) */
+        /* 绿色渐变按钮 - 更圆润 */
         #BtnGreen {
-            background-color: #22c55e;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #10b981, stop:1 #059669);
             color: white;
-            border-radius: 6px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
             border: none;
+            padding: 12px 20px;
+            letter-spacing: 1px;
         }
         #BtnGreen:hover {
-            background-color: #16a34a; /* green-600 */
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #059669, stop:1 #047857);
         }
         #BtnGreen:pressed {
-            background-color: #15803d; /* green-700 */
+            background: #047857;
+            padding-top: 14px;
+            padding-bottom: 10px;
         }
         #BtnGreen:disabled {
-            background-color: #94a3b8;
+            background-color: #cbd5e1;
         }
 
-        /* 蓝色按钮 (Tailwind blue-500: #3b82f6) */
+        /* 天蓝渐变按钮 */
         #BtnBlue {
-            background-color: #3b82f6;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #0ea5e9, stop:1 #0284c7);
             color: white;
-            border-radius: 4px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
             border: none;
             text-align: left;
-            padding-left: 15px;
+            padding: 10px 16px;
         }
         #BtnBlue:hover {
-            background-color: #2563eb; /* blue-600 */
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #0284c7, stop:1 #0369a1);
         }
         #BtnBlue:pressed {
-            background-color: #1d4ed8; /* blue-700 */
+            background: #075985;
+            padding-top: 11px;
+            padding-bottom: 9px;
         }
         #BtnBlue:disabled {
-            background-color: #94a3b8;
+            background-color: #cbd5e1;
         }
 
-        /* 控件样式 */
+        /* 单选按钮 - 现代化样式 */
         QRadioButton {
-            spacing: 5px;
+            spacing: 8px;
+            color: #475569;
+            font-weight: 500;
         }
-        QComboBox {
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            padding: 2px 5px;
+        QRadioButton::indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            border: 2px solid #94a3b8;
             background-color: white;
+        }
+        QRadioButton::indicator:hover {
+            border-color: #0ea5e9;
+        }
+        QRadioButton::indicator:checked {
+            background-color: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+        
+        /* 下拉框 */
+        QComboBox {
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 10px;
+            background-color: white;
+            font-weight: 500;
+        }
+        QComboBox:hover {
+            border-color: #a5b4fc;
+        }
+        QComboBox:focus {
+            border-color: #0ea5e9;
         }
         QComboBox::drop-down {
             subcontrol-origin: padding;
             subcontrol-position: top right;
-            width: 20px;
-            border-left-width: 0px;
+            width: 25px;
+            border-left: none;
+        }
+        
+        /* 输入框 - 现代化 */
+        QLineEdit {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            background-color: white;
+            font-size: 14px;
+            font-weight: 500;
+            selection-background-color: #a5b4fc;
+        }
+        QLineEdit:hover {
+            border-color: #cbd5e1;
+        }
+        QLineEdit:focus {
+            border-color: #0ea5e9;
+            outline: none;
+            background-color: #f0f9ff;
+        }
+        QLineEdit:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            border-color: #e2e8f0;
         }
 
-        /* 日志控制台 */
+        /* 日志控制台 - 深色主题优化 */
         #LogFrame {
-            background-color: #2c3e50;
-            border-radius: 8px;
-            border: 1px solid #475569;
+            background-color: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
         }
         #LogHeader {
-            background-color: #334155;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #334155, stop:1 #475569);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
             border-bottom: 1px solid #475569;
         }
         #StatusBadge {
-            background-color: #1e293b;
-            color: #94a3b8;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                                       stop:0 #059669, stop:1 #10b981);
+            color: white;
             font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid #475569;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 10px;
+            border: none;
         }
         #LogArea {
-            background-color: #2c3e50;
+            background-color: #1e293b;
             border: none;
             color: #e2e8f0;
-            font-family: 'Consolas', 'Courier New', monospace;
+            font-family: 'Consolas', 'Courier New', 'JetBrains Mono', monospace;
             font-size: 13px;
-            padding: 10px;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
+            padding: 12px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            selection-background-color: #475569;
+        }
+        
+        /* 滚动条美化 */
+        QScrollBar:vertical {
+            border: none;
+            background-color: #1e293b;
+            width: 10px;
+            border-radius: 5px;
+        }
+        QScrollBar::handle:vertical {
+            background-color: #475569;
+            min-height: 30px;
+            border-radius: 5px;
+        }
+        QScrollBar::handle:vertical:hover {
+            background-color: #64748b;
+        }
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            height: 0px;
         }
         """
         self.setStyleSheet(style)
