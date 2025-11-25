@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist-info/
+*.egg
+
+# PyInstaller
+build/
+dist/
+*.build/
+*.dist/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+output.log
+path.txt
+path_check.txt
+
+# Word temporary files
+~$*.doc*
+~$*.DOC*
+
+# Large archives and compressed files
+*.rar
+*.zip
+*.7z
+*.tar.gz
+
+# Output directories - these contain generated files
+DGSS导出报告/
+重新排版的报告/
+素描图汇总/
+报告-已插入素描图/
+分册/
+docxcompose_templates/
+
+# Compiled executables
+*.exe
+
+# Generated icons
+*.ico
+
+# VS Code workspace
+*.code-workspace

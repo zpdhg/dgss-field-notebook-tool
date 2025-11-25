@@ -1,0 +1,4 @@
+PyQt6>=6.4.0
+python-docx>=0.8.11
+docxcompose>=1.4.0
+Pillow>=9.0.0

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGSS 区域地质调查野外记录簿一键整理工具 - 使用说明</title>
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            body {
+                font-size: 10pt;
+            }
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", "SimSun", "PingFang SC", sans-serif;
+            line-height: 1.8;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 12px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        h1:first-child {
+            margin-top: 0;
+        }
+        
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #95a5a6;
+            padding-bottom: 10px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        p {
+            margin: 10px 0;
+            text-align: justify;
+        }
+        
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: "Consolas", "Courier New", "Monaco", monospace;
+            font-size: 0.9em;
+            color: #e74c3c;
+        }
+        
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            overflow-x: auto;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: #333;
+        }
+        
+        ul, ol {
+            margin: 12px 0;
+            padding-left: 35px;
+        }
+        
+        li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        strong {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        em {
+            color: #3498db;
+        }
+        
+        hr {
+            border: none;
+            border-top: 2px solid #ecf0f1;
+            margin: 40px 0;
+        }
+        
+        blockquote {
+            border-left: 4px solid #f39c12;
+            padding-left: 15px;
+            color: #666;
+            background-color: #fef9f3;
+            margin: 15px 0;
+            padding: 12px 15px;
+            font-style: italic;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 10px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        /* 特殊标记样式 */
+        .warning {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        /* 打印按钮 */
+        .no-print {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+        }
+        
+        .print-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        
+        .print-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="print-btn" onclick="window.print()">🖨️ 打印或保存为 PDF</button>
+        <p style="margin-top: 10px; color: #666; font-size: 14px;">
+            点击按钮后，在打印对话框中选择"另存为 PDF"即可保存
+        </p>
+    </div>
+    
+    <h1 id="dgss">DGSS 区域地质调查野外记录簿一键整理工具</h1>
+<h2 id="_1">软件简介</h2>
+<p>本工具专为中国地质调查局 DGSS 软件用户设计，用于自动化处理野外记录簿文档。通过现代化的图形界面，您可以一键完成从格式化到分册合并的全部流程，大幅提升工作效率。</p>
+<p><strong>开发单位</strong>：浙江省宁波地质院 基础地质调查研究中心<br />
+<strong>开发者</strong>：丁正鹏<br />
+<strong>联系方式</strong>：zhengpengding@outlook.com</p>
+<hr />
+<h2 id="_2">主要功能</h2>
+<h3 id="1">1. 🚀 智能自动化</h3>
+<p><strong>一键全自动运行</strong>（推荐使用）</p>
+<p>自动按顺序执行以下四个步骤，无需人工干预：
+- 步骤 1：格式化文档
+- 步骤 2：提取素描图
+- 步骤 3：插入素描图
+- 步骤 4：分册合并</p>
+<h3 id="2">2. 🛠 分步操作</h3>
+<p>如需单独执行某个步骤，可使用分步操作功能：</p>
+<h4 id="1-format">步骤 1：格式化文档 (Format)</h4>
+<ul>
+<li><strong>功能</strong>：对 DGSS 导出的原始 Word 文档进行格式化处理</li>
+<li><strong>输入</strong>：<code>word/DGSS导出报告</code> 文件夹中的原始文档</li>
+<li><strong>输出</strong>：<code>word/重新排版的报告</code> 文件夹</li>
+<li><strong>处理内容</strong>：</li>
+<li>统一文档样式和格式</li>
+<li>设置标题层级</li>
+<li>调整段落间距</li>
+<li>文本替换（如"界线描述"→"点上界线描述"）</li>
+</ul>
+<h4 id="2-extract">步骤 2：提取素描图 (Extract)</h4>
+<ul>
+<li><strong>功能</strong>：从项目文件夹中提取素描图并生成独立文档</li>
+<li><strong>输入</strong>：各路线项目文件夹中的 <code>素描图</code> 子文件夹</li>
+<li><strong>输出</strong>：<code>word/素描图汇总</code> 文件夹</li>
+<li><strong>处理内容</strong>：</li>
+<li>自动定位素描图文件夹</li>
+<li>提取所有 PNG 格式图片</li>
+<li>为每张图片添加路线编号标题</li>
+<li>生成独立的素描图文档</li>
+</ul>
+<h4 id="3-insert">步骤 3：插入素描图 (Insert)</h4>
+<ul>
+<li><strong>功能</strong>：将素描图文档插入到格式化后的报告中</li>
+<li><strong>输入</strong>：格式化后的报告 + 素描图文档</li>
+<li><strong>输出</strong>：<code>word/报告-已插入素描图</code> 文件夹</li>
+<li><strong>处理内容</strong>：</li>
+<li>在"路线自检"部分之后插入素描图</li>
+<li>保持正文两栏布局</li>
+<li>素描图采用单栏显示</li>
+<li>避免图片重复</li>
+</ul>
+<h4 id="4-merge">步骤 4：分册合并 (Merge)</h4>
+<ul>
+<li><strong>功能</strong>：将多个路线报告合并成分册</li>
+<li><strong>输入</strong>：已插入素描图的完整版报告</li>
+<li><strong>输出</strong>：<code>word/分册</code> 文件夹</li>
+<li><strong>处理内容</strong>：</li>
+<li>按指定规则分册</li>
+<li>添加封面页和目录页</li>
+<li>统一页码编号</li>
+<li>生成最终的分册文档</li>
+</ul>
+<h3 id="3">3. ⚙️ 分册设置</h3>
+<p>提供三种分册模式：</p>
+<h4 id="_3">默认模式</h4>
+<ul>
+<li>每册包含 12 条路线</li>
+<li>最后一册可能少于 12 条</li>
+</ul>
+<h4 id="_4">指定路线模式</h4>
+<ul>
+<li>自定义每册路线数量</li>
+<li>可选：12 条/册、15 条/册、20 条/册</li>
+<li>或手动输入其他数量</li>
+</ul>
+<h4 id="_5">指定总册模式</h4>
+<ul>
+<li>指定最终分成几册</li>
+<li>可选：3 册、5 册、10 册</li>
+<li>或手动输入其他数量</li>
+<li>系统自动平均分配路线</li>
+</ul>
+<hr />
+<h2 id="_6">使用步骤</h2>
+<h3 id="_7">前提条件</h3>
+<ol>
+<li><strong>文件夹结构</strong>：确保您的“野外手图”工作目录包含 <code>word</code> 文件夹</li>
+<li><strong>原始数据</strong>：<code>野外手图/word/DGSS导出报告</code> 文件夹中已存放 DGSS 导出的原始 Word 文档</li>
+<li><strong>项目文件</strong>：各路线的项目文件夹位于上级目录，且包含 <code>素描图</code> 子文件夹</li>
+</ol>
+<h3 id="_8">标准工作流程</h3>
+<h4 id="_9">方式一：一键全自动运行（推荐）</h4>
+<ol>
+<li>双击运行 <code>野外手图/word/DGSS野外记录簿工具.exe</code></li>
+<li>点击绿色按钮 <strong>"一键全自动运行 (推荐)"</strong></li>
+<li>在分册设置区选择您需要的分册模式：</li>
+<li>默认：每册 12 条路线</li>
+<li>指定路线：自定义每册路线数</li>
+<li>指定总册：自定义总册数</li>
+<li>观察运行日志，等待所有步骤完成</li>
+<li>在 <code>野外手图/word/分册</code> 文件夹中查看最终成果</li>
+</ol>
+<h4 id="_10">方式二：分步执行</h4>
+<p>如果需要在某个步骤后检查结果，可按顺序执行各步骤：</p>
+<ol>
+<li>点击 <strong>"1. 格式化文档 (Format)"</strong></li>
+<li>完成后，检查 <code>word/重新排版的报告</code> 文件夹</li>
+<li>点击 <strong>"2. 提取素描图 (Extract)"</strong></li>
+<li>完成后，检查 <code>word/素描图汇总</code> 文件夹</li>
+<li>点击 <strong>"3. 插入素描图 (Insert)"</strong></li>
+<li>完成后，检查 <code>word/报告-已插入素描图</code> 文件夹</li>
+<li>设置分册选项后，点击 <strong>"4. 分册合并 (Merge)"</strong></li>
+<li>完成后，检查 <code>word/分册</code> 文件夹</li>
+</ol>
+<hr />
+<h2 id="_11">输出文件说明</h2>
+<h3 id="_12">文件夹结构</h3>
+<pre><code>野外手图/word/
+├── DGSS导出报告/           # 原始输入文件
+├── 重新排版的报告/          # 步骤1输出：格式化后的文档
+├── 素描图汇总/             # 步骤2输出：素描图文档
+├── 报告-已插入素描图/       # 步骤3输出：完整版报告
+└── 分册/                   # 步骤4输出：最终分册文档
+</code></pre>
+<h3 id="_13">文件命名规则</h3>
+<ul>
+<li>格式化后的文档：<code>L0001_formatted.docx</code></li>
+<li>素描图文档：<code>L0001_素描图.docx</code></li>
+<li>完整版报告：<code>L0001_完整版.docx</code></li>
+<li>分册文档：<code>野外手图_第1册_L0001-L0012.docx</code></li>
+</ul>
+<hr />
+<h2 id="_14">注意事项</h2>
+<h3 id="1_1">1. 文件路径</h3>
+<ul>
+<li>⚠️ <strong>重要</strong>：工作目录路径中不要包含空格或特殊字符</li>
+<li>建议将项目放在简短路径下，如 <code>D:\地质调查\项目名\</code></li>
+</ul>
+<h3 id="2_1">2. 文档格式</h3>
+<ul>
+<li>输入文档必须是 <code>.docx</code> 格式（Word 2007 及以上）</li>
+<li>不支持 <code>.doc</code> 老格式</li>
+</ul>
+<h3 id="3_1">3. 素描图要求</h3>
+<ul>
+<li>仅支持 PNG 格式图片</li>
+<li>图片应位于各路线项目文件夹的 <code>素描图</code> 子文件夹中</li>
+<li>确保图片文件名不包含特殊字符</li>
+</ul>
+<h3 id="4">4. 运行环境</h3>
+<ul>
+<li>建议在处理大量文档时关闭其他 Word 程序</li>
+<li>确保有足够的磁盘空间（建议至少 1GB 可用空间）</li>
+</ul>
+<h3 id="5">5. 数据备份</h3>
+<ul>
+<li>建议在运行前备份原始数据</li>
+<li>软件不会修改 <code>DGSS导出报告</code> 文件夹中的原始文件</li>
+</ul>
+<hr />
+<h2 id="_15">常见问题</h2>
+<h3 id="q1">Q1：程序运行时提示找不到文件？</h3>
+<p><strong>A</strong>：请检查：
+1. <code>word/DGSS导出报告</code> 文件夹是否存在且包含文档
+2. 路线项目文件夹是否在正确位置
+3. 文件路径是否包含中文或特殊字符导致的编码问题</p>
+<h3 id="q2">Q2：素描图没有被正确提取？</h3>
+<p><strong>A</strong>：请确认：
+1. 素描图文件夹名称是否为"素描图"
+2. 图片格式是否为 PNG
+3. 项目文件夹结构是否正确</p>
+<h3 id="q3">Q3：分册合并失败？</h3>
+<p><strong>A</strong>：可能原因：
+1. 路线数量太少（少于设定的每册路线数）
+2. Word 文档损坏或格式异常
+3. 检查日志中的具体错误信息</p>
+<h3 id="q4">Q4：程序运行很慢？</h3>
+<p><strong>A</strong>：这是正常现象，原因：
+1. Word 文档处理本身耗时较长
+2. 素描图插入需要处理大量图片
+3. 建议在运行时不要操作其他 Word 文档</p>
+<h3 id="q5">Q5：如何更换分册设置？</h3>
+<p><strong>A</strong>：
+1. 在运行步骤4之前，在"分册设置"区域选择模式
+2. 如果已经合并，可删除 <code>分册</code> 文件夹后重新运行步骤4</p>
+<h3 id="q6">Q6：运行过程中可以中断吗？</h3>
+<p><strong>A</strong>：
+- 不建议在运行过程中强制关闭程序
+- 如需中断，可直接关闭程序窗口
+- 已生成的中间文件不会被删除，可以从中断处继续</p>
+<h3 id="q7-exe">Q7：两个版本的 exe 有什么区别？</h3>
+<p><strong>A</strong>：
+- <strong>PyInstaller 版本</strong>（<code>dist/DGSS野外记录簿工具.exe</code>）：
+  - 启动稍慢
+  - 兼容性更好
+  - 文件体积较大</p>
+<ul>
+<li><strong>Nuitka 版本</strong>（<code>DGSS野外记录簿工具-Nuitka.exe</code>）：</li>
+<li>启动更快</li>
+<li>运行性能更优</li>
+<li>需要 C++ 运行库支持</li>
+</ul>
+<p>建议优先使用 Nuitka 版本，如遇问题再尝试 PyInstaller 版本。</p>
+<hr />
+<h2 id="_16">技术支持</h2>
+<p>如遇到其他问题或需要定制化功能，请联系：</p>
+<p><strong>丁正鹏</strong><br />
+邮箱：zhengpengding@outlook.com<br />
+单位：浙江省宁波地质院 基础地质调查研究中心</p>
+<hr />
+<h2 id="_17">更新日志</h2>
+<h3 id="v10-2025-11-25">v1.0 (2025-11-25)</h3>
+<ul>
+<li>✅ 全新 PyQt6 图形界面</li>
+<li>✅ 一键全自动运行功能</li>
+<li>✅ 支持分步操作</li>
+<li>✅ 多种分册模式</li>
+<li>✅ 实时运行日志显示</li>
+<li>✅ 同时提供 PyInstaller 和 Nuitka 两个版本</li>
+</ul>
+<hr />
+<p><strong>感谢使用本工具！如果觉得好用，欢迎扫描界面右下角二维码请作者喝杯咖啡 ☕</strong></p>
+    
+    <div class="no-print" style="margin-top: 40px;">
+        <button class="print-btn" onclick="window.print()">🖨️ 打印或保存为 PDF</button>
+    </div>
+</body>
+</html>
