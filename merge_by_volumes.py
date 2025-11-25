@@ -472,5 +472,63 @@ def run_batch_with_total_volumes(total_volumes):
             else:
                 print(f"✗ 第 {volume_num} 册创建失败")
 
+def main():
+    """主函数：提供交互式菜单让用户选择分册模式"""
+    print("=" * 60)
+    print("DGSS 野外记录簿分册合并工具")
+    print("=" * 60)
+    print("\n请选择分册模式：")
+    print("  1. 默认模式（每册 12 条路线）")
+    print("  2. 指定每册路线数")
+    print("  3. 指定总册数")
+    print()
+    
+    while True:
+        choice = input("请输入选项 (1/2/3): ").strip()
+        
+        if choice == "1":
+            # 默认模式
+            print("\n使用默认模式：每册 12 条路线")
+            run_batch()
+            break
+            
+        elif choice == "2":
+            # 指定每册路线数
+            while True:
+                try:
+                    routes_per_volume = int(input("\n请输入每册路线数量（如 15）: ").strip())
+                    if routes_per_volume <= 0:
+                        print("❌ 路线数量必须大于 0，请重新输入！")
+                        continue
+                    print(f"\n使用自定义模式：每册 {routes_per_volume} 条路线")
+                    run_batch_with_routes_per_volume(routes_per_volume)
+                    break
+                except ValueError:
+                    print("❌ 输入无效，请输入一个正整数！")
+            break
+            
+        elif choice == "3":
+            # 指定总册数
+            while True:
+                try:
+                    total_volumes = int(input("\n请输入总册数（如 3）: ").strip())
+                    if total_volumes <= 0:
+                        print("❌ 总册数必须大于 0，请重新输入！")
+                        continue
+                    print(f"\n使用自定义模式：总共分为 {total_volumes} 册")
+                    run_batch_with_total_volumes(total_volumes)
+                    break
+                except ValueError:
+                    print("❌ 输入无效，请输入一个正整数！")
+            break
+            
+        else:
+            print("❌ 无效选项，请输入 1、2 或 3！\n")
+    
+    print("\n" + "=" * 60)
+    print("分册合并完成！")
+    print("=" * 60)
+    input("\n按回车键退出...")
+
 if __name__ == "__main__":
-    run_batch()
+    main()
